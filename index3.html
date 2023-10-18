@@ -18,6 +18,9 @@
 </body>
 
 <script>
+    let accessToken;
+    let refreshToken;
+
     // Obsługa przesłania formularza
     const loginForm = document.getElementById('login-form');
     loginForm.addEventListener('submit', function(event) {
@@ -28,9 +31,10 @@
         window.location.href = `https://accounts.spotify.com/authorize?client_id=${client_id}&response_type=token&redirect_uri=https://dzbanejro.github.io/spotify/index3&scope=user-read-private user-read-playback-state user-modify-playback-state`;
     });
 
-    // Pobierz access_token z URL (musisz to dostosować do swojej aplikacji)
+    // Pobierz access_token i token odświeżania z URL (musisz to dostosować do swojej aplikacji)
     const urlParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = urlParams.get('access_token');
+    accessToken = urlParams.get('access_token');
+    refreshToken = urlParams.get('refresh_token');
 
     // Jeśli mamy access_token, pobierz informacje o użytkowniku i wyświetl komunikat o sukcesie
     if (accessToken) {
@@ -73,6 +77,38 @@
         });
     }
 
+    if (accessToken) {
+        getUserInfo(accessToken);
+        getCurrentlyPlaying(accessToken);
+        document.getElementById('login-success').style.display = 'block';
+        document.getElementById('pause-button').style.display = 'block';
+
+        // Inicjalizuj odtwarzacz Spotify Web Playback SDK
+        const player = new Spotify.Player({
+            name: 'My Web Playback SDK Player',
+            getOAuthToken: cb => { cb(accessToken); }
+        });
+
+        // Zaloguj użytkika do odtwarzacza
+        player.connect().then(success => {
+            if (success) {
+                console.log('Zalogowano do Spotify Web Playback SDK');
+            }
+        });
+
+        // Odtwarzanie muzyki
+        player.addListener('ready', ({ device_id }) => {
+            console.log('Urządzenie gotowe z ID:', device_id);
+            // Możesz teraz zacząć odtwarzać muzykę
+        });
+
+        player.addListener('player_state_changed', state => {
+            console.log('Nowy stan odtwarzacza:', state);
+            // Możesz monitorować zmiany stanu odtwarzacza, w tym aktualnie odtwarzane utwory
+        });
+    }
+
+
     // Obsługa zatrzymywania muzyki
     const pauseButton = document.getElementById('pause-button');
     pauseButton.addEventListener('click', function() {
@@ -87,5 +123,33 @@
             }
         });
     });
+
+    
+
+    // Odnów token dostępu, gdy wygasa
+    function refreshAccessToken() {
+        $.ajax({
+            url: 'https://accounts.spotify.com/api/token',
+            method: 'POST',
+            data: {
+                grant_type: 'refresh_token',
+                refresh_token: refreshToken,
+                client_id: 'YourClientID',
+                client_secret: 'YourClientSecret'
+            },
+            success: function(response) {
+                // Nowy token dostępu
+                accessToken = response.access_token;
+                // Zaktualizuj token dostępu w aplikacji
+                // Teraz możesz użyć nowego tokenu dostępu do wykonywania żądań do API.
+            }
+        });
+    }
+
+    
+
+    // Automatycznie odnów token dostępu, gdy wygasa
+    setInterval(refreshAccessToken, 3600000); // Co godzinę (3600 sekund)
+
 </script>
 </html>
