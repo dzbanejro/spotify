@@ -6,12 +6,26 @@
 </head>
 <body>
     <h1>Log in with Spotify</h1>
-    
+    <form id="login-form">
+        <label for="client_id">Client ID:</label>
+        <input type="text" id="client_id" name="client_id">
+        <button type="submit">Log in with Spotify</button>
+    </form>
     <p>Nazwa użytkownika: <span id="username"></span></p>
     <p id="login-success" style="display: none; color: green;">Zalogowano poprawnie do Spotify!</p>
 </body>
 
 <script>
+    // Obsługa przesłania formularza
+    const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const client_id = document.getElementById('client_id').value;
+
+        // Przekieruj użytkownika do autoryzacji Spotify z użyciem wprowadzonego client_id
+        window.location.href = `https://accounts.spotify.com/authorize?client_id=${client_id}&response_type=token&redirect_uri=http://127.0.0.1:5500/index3.html&scope=user-read-private`;
+    });
+
     // Pobierz access_token z URL (musisz to dostosować do swojej aplikacji)
     const urlParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = urlParams.get('access_token');
