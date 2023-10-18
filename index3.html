@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spotify Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Log in with Spotify</h1>
+    
+    <p>Nazwa użytkownika: <span id="username"></span></p>
+    <p id="login-success" style="display: none; color: green;">Zalogowano poprawnie do Spotify!</p>
+</body>
+
+<script>
+    // Pobierz access_token z URL (musisz to dostosować do swojej aplikacji)
+    const urlParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = urlParams.get('access_token');
+
+    // Jeśli mamy access_token, pobierz informacje o użytkowniku i wyświetl komunikat o sukcesie
+    if (accessToken) {
+        getUserInfo(accessToken);
+        document.getElementById('login-success').style.display = 'block';
+    }
+
+    // Funkcja do pobierania informacji o użytkowniku
+    function getUserInfo(accessToken) {
+        $.ajax({
+            url: 'https://api.spotify.com/v1/me',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            },
+            success: function(response) {
+                // Wyświetl nazwę użytkownika na stronie
+                document.getElementById('username').textContent = response.display_name;
+            }
+        });
+    }
+</script>
+</html>
