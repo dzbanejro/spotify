@@ -12,6 +12,8 @@
         <button type="submit">Log in with Spotify</button>
     </form>
     <p>Nazwa użytkownika: <span id="username"></span></p>
+    <p>Obecnie odtwarzane: <span id="currently-playing"></span></p>
+    <button id="pause-button" style="display: none;">Zatrzymaj muzykę</button>
     <p id="login-success" style="display: none; color: green;">Zalogowano poprawnie do Spotify!</p>
 </body>
 
@@ -23,7 +25,7 @@
         const client_id = document.getElementById('client_id').value;
 
         // Przekieruj użytkownika do autoryzacji Spotify z użyciem wprowadzonego client_id
-        window.location.href = `https://accounts.spotify.com/authorize?client_id=${client_id}&response_type=token&redirect_uri=https://dzbanejro.github.io/spotify/index3&scope=user-read-private`;
+        window.location.href = `https://accounts.spotify.com/authorize?client_id=${client_id}&response_type=token&redirect_uri=https://dzbanejro.github.io/spotify/index3&scope=user-read-private user-read-playback-state`;
     });
 
     // Pobierz access_token z URL (musisz to dostosować do swojej aplikacji)
@@ -33,7 +35,9 @@
     // Jeśli mamy access_token, pobierz informacje o użytkowniku i wyświetl komunikat o sukcesie
     if (accessToken) {
         getUserInfo(accessToken);
+        getCurrentlyPlaying(accessToken);
         document.getElementById('login-success').style.display = 'block';
+        document.getElementById('pause-button').style.display = 'block';
     }
 
     // Funkcja do pobierania informacji o użytkowniku
@@ -49,5 +53,39 @@
             }
         });
     }
+
+    // Funkcja do pobierania informacji o bieżącym odtwarzaniu
+    function getCurrentlyPlaying(accessToken) {
+        $.ajax({
+            url: 'https://api.spotify.com/v1/me/player/currently-playing',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            },
+            success: function(response) {
+                if (response.item) {
+                    // Wyświetl informacje o aktualnie odtwarzanym utworze
+                    document.getElementById('currently-playing').textContent = response.item.name;
+                } else {
+                    // Jeśli nic nie jest odtwarzane, wyświetl odpowiedni komunikat
+                    document.getElementById('currently-playing').textContent = 'Nic nie jest odtwarzane.';
+                }
+            }
+        });
+    }
+
+    // Obsługa zatrzymywania muzyki
+    const pauseButton = document.getElementById('pause-button');
+    pauseButton.addEventListener('click', function() {
+        $.ajax({
+            url: 'https://api.spotify.com/v1/me/player/pause',
+            type: 'PUT',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            },
+            success: function(response) {
+                // Możesz dodać obsługę sukcesu tutaj, jeśli jest to potrzebne
+            }
+        });
+    });
 </script>
 </html>
