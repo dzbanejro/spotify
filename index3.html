@@ -25,7 +25,7 @@
         const client_id = document.getElementById('client_id').value;
 
         // Przekieruj użytkownika do autoryzacji Spotify z użyciem wprowadzonego client_id
-        window.location.href = `https://accounts.spotify.com/authorize?client_id=${client_id}&response_type=token&redirect_uri=https://dzbanejro.github.io/spotify/index3&scope=user-read-private user-read-playback-state`;
+        window.location.href = `https://accounts.spotify.com/authorize?client_id=${client_id}&response_type=token&redirect_uri=https://dzbanejro.github.io/spotify/index3&scope=user-read-private user-read-playback-state user-modify-playback-state`;
     });
 
     // Pobierz access_token z URL (musisz to dostosować do swojej aplikacji)
