@@ -77,37 +77,6 @@
         });
     }
 
-    if (accessToken) {
-        getUserInfo(accessToken);
-        getCurrentlyPlaying(accessToken);
-        document.getElementById('login-success').style.display = 'block';
-        document.getElementById('pause-button').style.display = 'block';
-
-        // Inicjalizuj odtwarzacz Spotify Web Playback SDK
-        const player = new Spotify.Player({
-            name: 'My Web Playback SDK Player',
-            getOAuthToken: cb => { cb(accessToken); }
-        });
-
-        // Zaloguj użytkika do odtwarzacza
-        player.connect().then(success => {
-            if (success) {
-                console.log('Zalogowano do Spotify Web Playback SDK');
-            }
-        });
-
-        // Odtwarzanie muzyki
-        player.addListener('ready', ({ device_id }) => {
-            console.log('Urządzenie gotowe z ID:', device_id);
-            // Możesz teraz zacząć odtwarzać muzykę
-        });
-
-        player.addListener('player_state_changed', state => {
-            console.log('Nowy stan odtwarzacza:', state);
-            // Możesz monitorować zmiany stanu odtwarzacza, w tym aktualnie odtwarzane utwory
-        });
-    }
-
 
     // Obsługa zatrzymywania muzyki
     const pauseButton = document.getElementById('pause-button');
